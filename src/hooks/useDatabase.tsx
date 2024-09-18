@@ -11,7 +11,7 @@ type Data = {
 
 export const useDatabase = () => {
   const getScoreFromDatabase = useCallback(async (username: Username) => {
-    const score = await fetch(`/api/score?username=${username}`).then(
+    const { score } = await fetch(`/api/score?username=${username}`).then(
       (response) => response.json()
     );
 

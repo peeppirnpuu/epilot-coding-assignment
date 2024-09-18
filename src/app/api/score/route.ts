@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import AWS from "aws-sdk";
+import { NextResponse } from "next/server";
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient({
   region: process.env.AWS_REGION,
@@ -45,29 +45,32 @@ export async function GET(request: Request) {
   const username = searchParams.get("username");
 
   if (!username) {
-    return new Response(JSON.stringify({ error: "Username is required" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+    return NextResponse.json(
+      { error: "Username is required" },
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
   }
 
   try {
     const score = await getUserScore(username);
 
     if (score !== null) {
-      return new Response(score.toString(), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
+      return NextResponse.json(
+        { score },
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     } else {
-      return new Response(JSON.stringify({ error: "User not found" }), {
-        status: 404,
-        headers: { "Content-Type": "application/json" },
-      });
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404, headers: { "Content-Type": "application/json" } }
+      );
     }
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: "Error fetching user score" }),
+    return NextResponse.json(
+      { error: "Error fetching user score" },
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }

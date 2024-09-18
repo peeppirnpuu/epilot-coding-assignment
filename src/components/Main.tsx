@@ -7,7 +7,7 @@ import Button from "@/components/Button";
 import PasttimeQuiz from "@/components/PasttimeQuiz";
 import RealtimePriceIndicator from "@/components/RealtimePriceIndicator";
 import View from "@/components/View";
-import { delayInSeconds } from "@/constants";
+import { delayInMilliseconds, delayInSeconds } from "@/constants";
 import { saveToLocalStorage } from "@/helpers/localStorage";
 import { useDatabase } from "@/hooks/useDatabase";
 
@@ -60,28 +60,32 @@ export default function Main({
       setPrediction(prediction);
 
       const fetchGuessInputData = async () => {
-        const btcPrice = await fetch("/api/btc").then((response) =>
+        const { btcPrice } = await fetch("/api/btc").then((response) =>
           response.json()
         );
 
         setBtcPrice(btcPrice);
 
         startTransition(async () => {
-          const newBtcPrice = await fetch("/api/btc-update").then((response) =>
-            response.json()
-          );
+          await new Promise(() => {
+            setTimeout(async () => {
+              const { btcPrice: newBtcPrice } = await fetch("/api/btc").then(
+                (response) => response.json()
+              );
 
-          const scorePoints = validatePrediction(
-            prediction,
-            btcPrice,
-            newBtcPrice
-          );
-          const newScore = score + scorePoints;
-          saveToLocalStorage(JSON.stringify({ score: newScore, username }));
-          saveScoreToDatabase({ score: newScore, username });
-          setScore(newScore);
+              const scorePoints = validatePrediction(
+                prediction,
+                btcPrice,
+                newBtcPrice
+              );
+              const newScore = score + scorePoints;
+              saveToLocalStorage(JSON.stringify({ score: newScore, username }));
+              saveScoreToDatabase({ score: newScore, username });
+              setScore(newScore);
 
-          setBtcPrice(undefined);
+              setBtcPrice(undefined);
+            }, delayInMilliseconds);
+          });
         });
       };
 
