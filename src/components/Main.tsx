@@ -179,6 +179,7 @@ export default function Main({
               <Space align="center" direction="vertical" key={index}>
                 <Button
                   color={color}
+                  data-testid={description}
                   icon={icon}
                   onClick={onClick}
                   shape="circle"
@@ -197,7 +198,12 @@ export default function Main({
         />
       }
       footerElement={
-        <Button onClick={handleRestartClick} size="small" type="text">
+        <Button
+          data-testid="restart"
+          onClick={handleRestartClick}
+          size="small"
+          type="text"
+        >
           Restart game
         </Button>
       }
