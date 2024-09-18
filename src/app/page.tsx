@@ -1,12 +1,17 @@
 "use client";
 
 import { ConfigProvider, Input, Typography, theme } from "antd";
-import { useEffect, useState, ReactElement } from "react";
+import { useEffect, useState, useTransition, ReactElement } from "react";
 
 import Button from "@/components/Button";
 import Main from "@/components/Main";
 import View from "@/components/View";
-import { colorDown, colorPriceIndicator, colorUp } from "@/constants";
+import {
+  colorDown,
+  colorPriceIndicator,
+  colorTextDisabled,
+  colorUp,
+} from "@/constants";
 import {
   getFromLocalStorage,
   removeFromLocalStorage,
@@ -14,10 +19,11 @@ import {
 } from "@/helpers/localStorage";
 import { useDatabase } from "@/hooks/useDatabase";
 
-export default function Entry(): ReactElement {
+export default function App(): ReactElement {
   const { getScoreFromDatabase } = useDatabase();
   const [savedScore, setSavedScore] = useState<number | undefined>(undefined);
   const [username, setUsername] = useState<string>("");
+  const [isPending, startTransition] = useTransition();
 
   const { token } = theme.useToken();
 
@@ -28,11 +34,13 @@ export default function Entry(): ReactElement {
     setUsername(username);
   }, []);
 
-  const handleGoClick = async () => {
-    const score = await getScoreFromDatabase(username);
+  const handleGoClick = () => {
+    startTransition(async () => {
+      const score = await getScoreFromDatabase(username);
 
-    saveToLocalStorage(JSON.stringify({ score, username }));
-    setSavedScore(score);
+      saveToLocalStorage(JSON.stringify({ score, username }));
+      setSavedScore(score);
+    });
   };
 
   const handleRestart = () => {
@@ -55,7 +63,7 @@ export default function Entry(): ReactElement {
       actionElement={
         <Button
           color={colorUp}
-          disabled={!username}
+          disabled={isPending || !username}
           onClick={handleGoClick}
           shape="circle"
           size="large"
@@ -66,9 +74,11 @@ export default function Entry(): ReactElement {
       }
       contentElement={
         <Input
+          disabled={isPending}
           placeholder="Your name"
           size="large"
           onChange={(event) => setUsername(event.currentTarget.value)}
+          onPressEnter={handleGoClick}
         />
       }
       headingElement={
@@ -85,7 +95,7 @@ export default function Entry(): ReactElement {
       theme={{
         components: {
           Button: {
-            colorTextDisabled: "rgba(255,255,255,0.8)",
+            colorTextDisabled,
             fontSizeLG: 40,
             controlHeight: 80,
             controlHeightLG: 100,
@@ -93,6 +103,7 @@ export default function Entry(): ReactElement {
           },
           Input: {
             colorText: token.colorTextBase,
+            colorTextDisabled,
           },
           Spin: {
             colorPrimary: colorPriceIndicator,
