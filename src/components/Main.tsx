@@ -8,6 +8,7 @@ import PasttimeQuiz from "@/components/PasttimeQuiz";
 import RealtimePriceIndicator from "@/components/RealtimePriceIndicator";
 import View from "@/components/View";
 import { delayInSeconds } from "@/constants";
+import { saveToLocalStorage } from "@/helpers/localStorage";
 import { useDatabase } from "@/hooks/useDatabase";
 
 type ButtonType = {
@@ -21,11 +22,13 @@ type Prediction = "up" | "down" | undefined;
 
 type MainProps = {
   savedScore: number;
+  showEntryPage: () => void;
   username: string;
 };
 
 export default function Main({
   savedScore,
+  showEntryPage,
   username,
 }: MainProps): ReactElement {
   const { saveScoreToDatabase } = useDatabase();
@@ -52,7 +55,7 @@ export default function Main({
     []
   );
 
-  const handleClick = useCallback(
+  const handlePredictionClick = useCallback(
     (prediction: Prediction) => {
       setPrediction(prediction);
 
@@ -74,7 +77,8 @@ export default function Main({
             newBtcPrice
           );
           const newScore = score + scorePoints;
-          saveScoreToDatabase({ username, score: newScore });
+          saveToLocalStorage(JSON.stringify({ score: newScore, username }));
+          saveScoreToDatabase({ score: newScore, username });
           setScore(newScore);
 
           setBtcPrice(undefined);
@@ -86,18 +90,25 @@ export default function Main({
     [saveScoreToDatabase, score, username, validatePrediction]
   );
 
+  const handleRestartClick = () => {
+    setBtcPrice(undefined);
+    setScore(0);
+
+    showEntryPage();
+  };
+
   const buttons: ButtonType[] = [
     {
       color: token.colorSuccess,
       description: "UP",
       icon: <ArrowUpOutlined />,
-      onClick: () => handleClick("up"),
+      onClick: () => handlePredictionClick("up"),
     },
     {
       color: token.colorError,
       description: "DOWN",
       icon: <ArrowDownOutlined />,
-      onClick: () => handleClick("down"),
+      onClick: () => handlePredictionClick("down"),
     },
   ];
 
@@ -184,6 +195,11 @@ export default function Main({
           comparativePrice={btcPrice}
           isComparativePriceVisible={isWaitingForPriceUpdate}
         />
+      }
+      footerElement={
+        <Button onClick={handleRestartClick} size="small" type="text">
+          Restart game
+        </Button>
       }
       headingElement={
         isWaitingForPriceUpdate ? (

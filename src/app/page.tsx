@@ -1,38 +1,62 @@
 "use client";
 
 import { ConfigProvider, Input, Typography, theme } from "antd";
-import { useState, ReactElement } from "react";
+import { useEffect, useState, ReactElement } from "react";
 
 import Button from "@/components/Button";
 import Main from "@/components/Main";
 import View from "@/components/View";
 import { colorDown, colorPriceIndicator, colorUp } from "@/constants";
+import {
+  getFromLocalStorage,
+  removeFromLocalStorage,
+  saveToLocalStorage,
+} from "@/helpers/localStorage";
 import { useDatabase } from "@/hooks/useDatabase";
 
-export default function App(): ReactElement {
+export default function Entry(): ReactElement {
   const { getScoreFromDatabase } = useDatabase();
   const [savedScore, setSavedScore] = useState<number | undefined>(undefined);
   const [username, setUsername] = useState<string>("");
 
   const { token } = theme.useToken();
 
-  const handleClick = async () => {
-    const score = await getScoreFromDatabase(username);
+  useEffect(() => {
+    const { score, username } = getFromLocalStorage();
 
     setSavedScore(score);
+    setUsername(username);
+  }, []);
+
+  const handleGoClick = async () => {
+    const score = await getScoreFromDatabase(username);
+
+    saveToLocalStorage(JSON.stringify({ score, username }));
+    setSavedScore(score);
+  };
+
+  const handleRestart = () => {
+    setSavedScore(undefined);
+    setUsername("");
+
+    removeFromLocalStorage();
   };
 
   const isMainViewReady = savedScore !== undefined;
 
   const appElement: ReactElement = isMainViewReady ? (
-    <Main savedScore={savedScore} username={username} />
+    <Main
+      savedScore={savedScore}
+      showEntryPage={handleRestart}
+      username={username}
+    />
   ) : (
     <View
       actionElement={
         <Button
           color={colorUp}
           disabled={!username}
-          onClick={handleClick}
+          onClick={handleGoClick}
           shape="circle"
           size="large"
           type="primary"

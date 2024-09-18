@@ -8,9 +8,8 @@ type ScoreProps = {
 export default function Score({ username, value }: ScoreProps) {
   return (
     <Space align="center" direction="vertical">
-      <Typography.Text>{username}</Typography.Text>
-      <Typography.Title level={5}>SCORE</Typography.Title>
-      {value !== undefined && <Typography.Text strong>{value}</Typography.Text>}
+      <Typography.Title level={5}>{username}</Typography.Title>
+      <Typography.Title level={5}>SCORE: {value}</Typography.Title>
     </Space>
   );
 }

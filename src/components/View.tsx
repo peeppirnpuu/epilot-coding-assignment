@@ -27,6 +27,7 @@ const StyledSpace = styled(Space)<{ style?: CSSProperties }>({
 type ViewProps = {
   actionElement: ReactElement;
   contentElement: ReactElement;
+  footerElement?: ReactElement;
   headingElement: ReactElement;
   isCountdownVisible?: boolean;
   score?: number;
@@ -37,6 +38,7 @@ type ViewProps = {
 export default function View({
   actionElement,
   contentElement,
+  footerElement,
   headingElement,
   isCountdownVisible = false,
   score = 0,
@@ -60,6 +62,8 @@ export default function View({
           {isCountdownVisible && <Countdown />}
 
           {actionElement}
+
+          {footerElement}
         </StyledSpace>
       </StyledLayout>
     </main>
