@@ -82,7 +82,7 @@ export default function App(): ReactElement {
         />
       }
       headingElement={
-        <Typography.Title level={4}>
+        <Typography.Title level={4} style={{ textAlign: "center" }}>
           Ready to bet on bitcoin price going up or down?
         </Typography.Title>
       }

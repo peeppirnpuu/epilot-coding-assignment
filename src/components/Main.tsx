@@ -178,7 +178,7 @@ export default function Main({
             </Space>
           </Space>
         ) : (
-          <Space size="large">
+          <Space size={80}>
             {buttons.map(({ color, description, icon, onClick }, index) => (
               <Space align="center" direction="vertical" key={index}>
                 <Button
@@ -214,18 +214,18 @@ export default function Main({
       headingElement={
         isWaitingForPriceUpdate ? (
           <Space>
-            <Typography.Title level={4}>
+            <Typography.Title level={4} style={{ textAlign: "center" }}>
               YOU MADE A GUESS OF PRICE GOING{" "}
+              {prediction === "down" ? (
+                <span style={{ color: token.colorError }}>
+                  <ArrowDownOutlined /> DOWN
+                </span>
+              ) : (
+                <span style={{ color: token.colorSuccess }}>
+                  <ArrowUpOutlined /> UP
+                </span>
+              )}
             </Typography.Title>
-            {prediction === "down" ? (
-              <Typography.Title level={4} type="danger">
-                <ArrowDownOutlined /> DOWN
-              </Typography.Title>
-            ) : (
-              <Typography.Title level={4} type="success">
-                <ArrowUpOutlined /> UP
-              </Typography.Title>
-            )}
           </Space>
         ) : (
           <Typography.Title level={4}>PRICE MOVES FAST</Typography.Title>
