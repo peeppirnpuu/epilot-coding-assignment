@@ -10,8 +10,8 @@ export const useCryptoWebSocket = () => {
     const ws = new WebSocket("wss://stream.binance.com:9443/ws/btcusdt@trade");
 
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setBtcPrice(parseFloat(data.p)); // p is the price in the trade message
+      const { p: btcPrice } = JSON.parse(event.data);
+      setBtcPrice(parseFloat(btcPrice));
     };
 
     return () => ws.close();
