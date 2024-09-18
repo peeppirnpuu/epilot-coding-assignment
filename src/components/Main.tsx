@@ -8,6 +8,7 @@ import PasttimeQuiz from "@/components/PasttimeQuiz";
 import RealtimePriceIndicator from "@/components/RealtimePriceIndicator";
 import View from "@/components/View";
 import { delayInSeconds } from "@/constants";
+import { useDatabase } from "@/hooks/useDatabase";
 
 type ButtonType = {
   color: string;
@@ -19,13 +20,18 @@ type ButtonType = {
 type Prediction = "up" | "down" | undefined;
 
 type MainProps = {
+  savedScore: number;
   username: string;
 };
 
-export default function Main({ username }: MainProps): ReactElement {
+export default function Main({
+  savedScore,
+  username,
+}: MainProps): ReactElement {
+  const { saveScoreToDatabase } = useDatabase();
   const [btcPrice, setBtcPrice] = useState<number | undefined>(undefined);
   const [prediction, setPrediction] = useState<Prediction>(undefined);
-  const [score, setScore] = useState<number>(0);
+  const [score, setScore] = useState<number>(savedScore);
   const [isPending, startTransition] = useTransition();
 
   const { token } = theme.useToken();
@@ -67,7 +73,9 @@ export default function Main({ username }: MainProps): ReactElement {
             btcPrice,
             newBtcPrice
           );
-          setScore((score) => score + scorePoints);
+          const newScore = score + scorePoints;
+          saveScoreToDatabase({ username, score: newScore });
+          setScore(newScore);
 
           setBtcPrice(undefined);
         });
@@ -75,7 +83,7 @@ export default function Main({ username }: MainProps): ReactElement {
 
       fetchGuessInputData();
     },
-    [validatePrediction]
+    [saveScoreToDatabase, score, username, validatePrediction]
   );
 
   const buttons: ButtonType[] = [
